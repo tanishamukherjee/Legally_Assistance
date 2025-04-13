@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Role - Legal Assist</title>
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* === CSS Styles === */
+        :root {
+            --primary-bg: #121212;
+            --secondary-bg: #1a1a1a;
+            --input-bg: #2a2a2a;
+            --border-color: #383838;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --accent-color: #7e57c2;
+            --accent-hover: #673ab7;
+            --error-color: #cf6679;
+            --success-color: #4caf50;
+            --white: #ffffff;
+            --google-red: #DB4437;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; overflow: auto; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 10px;
+            top: 0px !important; /* Prevent Google banner pushdown */
+        }
+
+        /* Container */
+        .auth-container {
+            display: flex;
+            max-width: 1000px;
+            width: 100%;
+            background-color: var(--secondary-bg);
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            min-height: 85vh;
+            margin: 20px auto;
+            overflow: hidden;
+        }
+        .left-panel {
+            flex-basis: 45%;
+            background: linear-gradient(160deg, #5e35b1 0%, #1a1a1a 75%);
+            padding: 35px 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-top-left-radius: 12px;
+            border-bottom-left-radius: 12px;
+            position: relative;
+            color: var(--white);
+        }
+        .left-panel::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: radial-gradient(circle at 25px 25px, rgba(255, 255, 255, 0.03) 1px, transparent 0), radial-gradient(circle at 75px 75px, rgba(255, 255, 255, 0.03) 1px, transparent 0); background-size: 100px 100px; pointer-events: none; opacity: 0.5; }
+        .logo {
+            font-size: 1.3rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+         }
+        .logo-icon { font-size: 1.6rem; color: var(--white); }
+        .tagline { margin-top: auto; position: relative; z-index: 1; }
+        .tagline h1 { font-size: 2.3rem; font-weight: 700; line-height: 1.2; margin-bottom: 15px; color: var(--white); }
+        .tagline p { font-size: 0.9rem; line-height: 1.5; color: var(--text-primary); max-width: 400px; }
+
+        .right-panel {
+            flex-basis: 55%;
+            padding: 40px 55px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            overflow-y: auto;
+            max-height: 85vh;
+        }
+        .right-panel h2 { font-size: 1.8rem; font-weight: 600; margin-bottom: 40px; color: var(--text-primary); }
+        /* Role Button Styles */
+        .role-button { width: 80%; max-width: 300px; padding: 14px 20px; background: var(--accent-color); border: none; border-radius: 8px; color: var(--white); font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: background 0.3s ease, box-shadow 0.3s ease; margin-bottom: 25px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .role-button:hover { background: var(--accent-hover); box-shadow: 0 4px 15px rgba(126, 87, 194, 0.3); }
+        .role-button i { font-size: 1.2rem; }
+
+         /* --- Styles for Google Translate Widget --- */
+         #google_translate_element {
+             margin-bottom: 5px; /* Reduced space below */
+             position: relative;
+             z-index: 10;
+             line-height: 1;
+         }
+         /* Target the SELECT element itself */
+         .goog-te-combo {
+             appearance: none !important; -webkit-appearance: none !important; -moz-appearance: none !important;
+             background: none !important; background-color: transparent !important;
+             border: none !important; box-shadow: none !important;
+             color: var(--text-secondary) !important; font-size: 0.9rem !important;
+             font-weight: 500 !important; padding: 0 !important; margin: 0 !important;
+             cursor: pointer !important; text-decoration: none; outline: none !important;
+             /* --- ADJUSTED PADDING --- */
+             padding-right: 5px !important; /* Less space for arrow */
+             /* --- END ADJUSTMENT --- */
+             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23a0a0a0'%3E%3Cpath fill-rule='evenodd' d='M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06Z' clip-rule='evenodd' /%3E%3C/svg%3E") !important;
+             background-repeat: no-repeat !important; background-position: right 0px center !important; background-size: 16px 16px !important;
+             transition: color 0.2s ease;
+         }
+        .goog-te-combo:hover {
+            color: var(--text-primary) !important;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23e0e0e0'%3E%3Cpath fill-rule='evenodd' d='M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06Z' clip-rule='evenodd' /%3E%3C/svg%3E") !important;
+        }
+        .goog-logo-link, .goog-te-gadget span { display: none !important; }
+        .goog-te-gadget { color: transparent !important; font-size: 0px !important; line-height: 1 !important; }
+        /* Hide Google Translate Top Banner */
+        .goog-te-banner-frame.skiptranslate { display: none !important; }
+        body > .skiptranslate { display: none !important; }
+        /* --- End Google Translate Styles --- */
+
+
+        /* Responsive Adjustments */
+        @media (max-width: 992px) {
+             .auth-container { flex-direction: column; max-width: 500px; min-height: 0; max-height: none; margin: 20px auto; }
+             .left-panel, .right-panel { overflow-y: visible; flex-basis: auto; border-radius: 12px 12px 0 0; justify-content: initial; max-height: none; }
+             .right-panel { border-radius: 0 0 12px 12px; padding: 50px 30px; }
+             .role-button { width: 90%; margin-bottom: 20px; }
+        }
+        @media (max-width: 480px) {
+            .tagline h1 { font-size: 2rem; }
+            .right-panel h2 { font-size: 1.6rem; margin-bottom: 30px;}
+            .left-panel, .right-panel { padding: 30px 20px; }
+            .role-button { font-size: 1rem; padding: 12px 15px;}
+            #google_translate_element { margin-bottom: 15px; }
+        }
+        /* === END OF CSS === */
+    </style>
+</head>
+
+<body>
+    <!-- Using .auth-container -->
+    <div class="auth-container">
+        <!-- Left Panel -->
+        <div class="left-panel">
+             <div class="logo">
+                <i class="fas fa-balance-scale logo-icon"></i>
+                <span>Legal Assist</span>
+            </div>
+            <!-- Google Translate Element -->
+            <div id="google_translate_element"></div>
+             <div class="tagline">
+                <h1>Your Case.<br>Your Rights.<br>Your Advocate.</h1>
+                <p>Get started by selecting your role.</p>
+            </div>
+        </div>
+
+        <!-- Right Panel -->
+        <div class="right-panel">
+            <h2>Select Your Role</h2>
+            <button class="role-button" id="clientBtn">
+                <i class="fas fa-user"></i> I am a Client
+            </button>
+            <button class="role-button" id="lawyerBtn">
+                 <i class="fas fa-gavel"></i> I am a Lawyer
+             </button>
+        </div>
+    </div>
+
+    <!-- Google Translate Scripts -->
+    <script type="text/javascript">
+      function googleTranslateElementInit() {
+          try {
+              new google.translate.TranslateElement( { pageLanguage: 'en' }, 'google_translate_element' );
+              console.log("Google Translate Initialized.");
+          } catch (e) { console.error("Error initializing Google Translate:", e); }
+      }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <!-- Button Click Logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const clientButton = document.getElementById('clientBtn');
+            const lawyerButton = document.getElementById('lawyerBtn');
+            if (clientButton) {
+                clientButton.addEventListener('click', () => {
+                    console.log("Client button clicked. Redirecting to sign_up.html");
+                    window.location.href = 'sign_up.html';
+                });
+            } else { console.error("Client button (#clientBtn) not found!"); }
+            if (lawyerButton) {
+                lawyerButton.addEventListener('click', () => {
+                    console.log("Lawyer button clicked. Redirecting to lawyer_sign_up.html");
+                    window.location.href = 'lawyer_sign_up.html';
+                });
+            } else { console.error("Lawyer button (#lawyerBtn) not found!"); }
+        });
+    </script>
+
+</body>
+</html>

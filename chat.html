@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - LegalAssist</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-bg: #0a0a0a;
+            --secondary-bg: #1a1a1a;
+            --card-bg: var(--secondary-bg);
+            --accent: #7E57C2;
+            --accent-hover: #673AB7;
+            --text-primary: #f5f5f5;
+            --text-secondary: #a3a3a3;
+            --border-light: rgba(255, 255, 255, 0.1);
+            --bs-border-radius-lg: 1rem;
+            --user-message-bg: var(--accent);
+            --bot-message-bg: #2a2a2a;
+            --option-button-bg: #3f3f3f;
+            --option-button-hover-bg: #505050;
+            --option-button-text: var(--text-primary);
+            --system-message-color: var(--text-secondary);
+            --error-color: #cf6679;
+            --success-color: #4caf50;
+        }
+
+        html, body { height: 100%; }
+        body {
+             font-family: 'Inter', sans-serif; background: var(--primary-bg); color: var(--text-primary);
+             display: flex; flex-direction: column;
+             top: 0px !important; /* Prevent Google banner pushdown */
+        }
+        .navbar { background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border-light); padding: 0.8rem 0; flex-shrink: 0; }
+        .navbar-brand.logo { font-weight: 700; letter-spacing: -0.5px; font-size: 1.4rem; color: var(--text-primary); text-decoration: none; display: inline-flex; align-items: center; margin-right: auto; }
+        .logo-icon { color: var(--accent); margin-right: 0.6rem; font-size: 1.5rem; }
+        .navbar-actions { display: flex; align-items: center; gap: 1rem; }
+        #google_translate_element { position: relative; z-index: 10; margin-right: 1rem; line-height: 1; display: inline-block; vertical-align: middle; }
+        .goog-te-combo { background: none !important; background-color: transparent !important; border: none !important; box-shadow: none !important; color: var(--text-secondary) !important; font-size: 0.9rem !important; font-weight: 500 !important; padding: 0 !important; margin: 0 !important; cursor: pointer !important; text-decoration: none; outline: none !important; appearance: none !important; -webkit-appearance: none !important; padding-right: 14px !important; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23a0a0a0'%3E%3Cpath fill-rule='evenodd' d='M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06Z' clip-rule='evenodd' /%3E%3C/svg%3E") !important; background-repeat: no-repeat !important; background-position: right 0px center !important; background-size: 16px 16px !important; transition: color 0.2s ease; }
+        .goog-te-combo:hover { color: var(--text-primary) !important; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23e0e0e0'%3E%3Cpath fill-rule='evenodd' d='M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06Z' clip-rule='evenodd' /%3E%3C/svg%3E") !important; }
+        .goog-logo-link, .goog-te-gadget span { display: none !important; }
+        .goog-te-gadget { color: transparent !important; font-size: 0px !important; line-height: 1 !important; display: inline-block !important; vertical-align: middle !important; }
+        .goog-te-banner-frame.skiptranslate, body > .skiptranslate { display: none !important; }
+        .chat-container { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; padding-top: 1.5rem; padding-bottom: 1.5rem; }
+        .chat-window { flex-grow: 1; background-color: var(--card-bg); border: 1px solid var(--border-light); border-radius: var(--bs-border-radius-lg); padding: 1.5rem; overflow-y: auto; margin-bottom: 1rem; display: flex; flex-direction: column; }
+        .message-list { display: flex; flex-direction: column; gap: 0.8rem; margin-top: auto; }
+        .message { padding: 0.75rem 1.25rem; border-radius: 1.25rem; max-width: 75%; line-height: 1.5; word-wrap: break-word; }
+        .message p:last-child { margin-bottom: 0; }
+        .message p { margin-bottom: 0.5rem; font-size: 0.95rem; }
+        .user-message { background-color: var(--user-message-bg); color: var(--white); align-self: flex-end; border-bottom-right-radius: 0.5rem; }
+        .bot-message { background-color: var(--bot-message-bg); color: var(--text-primary); align-self: flex-start; border-bottom-left-radius: 0.5rem; }
+        .system-message { align-self: center; font-style: italic; font-size: 0.85rem; color: var(--system-message-color); margin: 0.5rem 0; max-width: 90%; text-align: center; }
+        .system-message.error { color: var(--error-color); font-weight: bold; }
+        .system-message.success { color: var(--success-color); }
+        .message-options { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+        .option-button { background-color: var(--option-button-bg); color: var(--option-button-text); border: 1px solid var(--border-light); border-radius: 50px; padding: 0.4rem 1rem; font-size: 0.85rem; cursor: pointer; transition: background-color 0.2s ease; }
+        .option-button:hover:not(:disabled) { background-color: var(--option-button-hover-bg); }
+        .option-button:disabled { opacity: 0.6; cursor: not-allowed; }
+        .chat-input-area { display: flex; gap: 0.75rem; padding: 1rem; background-color: var(--card-bg); border: 1px solid var(--border-light); border-radius: var(--bs-border-radius-lg); }
+        .chat-input { flex-grow: 1; background-color: #2f2f2f; border: 1px solid var(--border-light); color: var(--text-primary); border-radius: 50px; padding: 0.75rem 1.25rem; resize: none; font-size: 0.95rem; line-height: 1.5; min-height: calc(1.5em + 1.5rem + 2px); transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+        .chat-input:focus { background-color: #333; border-color: var(--accent); box-shadow: 0 0 0 0.25rem rgba(126, 87, 194, 0.3); outline: none; }
+        .chat-input::placeholder { color: var(--text-secondary); opacity: 0.7; }
+        .chat-input:disabled { background-color: #252525; opacity: 0.7; cursor: not-allowed;}
+        .chat-send-btn { flex-shrink: 0; background-color: var(--accent); color: var(--white); border: none; border-radius: 50%; width: 48px; height: 48px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: background-color 0.2s ease, transform 0.1s ease; }
+        .chat-send-btn:hover:not(:disabled) { background-color: var(--accent-hover); transform: scale(1.05); }
+        .chat-send-btn:active:not(:disabled) { transform: scale(0.98); }
+        .chat-send-btn:disabled { background-color: #555; opacity: 0.6; cursor: not-allowed; }
+        footer { background-color: #000; padding: 1.5rem 0; margin-top: auto; border-top: 1px solid var(--border-light); flex-shrink: 0; }
+        .footer-text { color: var(--text-secondary); font-size: 0.85rem; }
+        @media (max-width: 768px) { .message { max-width: 85%; } .chat-window { padding: 1rem; } .chat-input-area { padding: 0.75rem; } }
+        @media (max-width: 576px) { .navbar-brand.logo { font-size: 1.2rem; } .logo-icon { font-size: 1.3rem; } .chat-window { border-radius: 0.8rem; } .chat-input-area { border-radius: 0.8rem; } .chat-input { padding: 0.6rem 1rem; } .chat-send-btn { width: 42px; height: 42px; font-size: 1rem; } #google_translate_element { margin-right: 0.5rem;} }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <nav class="navbar sticky-top">
+        <div class="container">
+            <a class="navbar-brand logo" href="home.html">
+                <i class="fas fa-balance-scale logo-icon"></i>
+                Legal Assist
+            </a>
+            <div class="navbar-actions">
+                 <div id="google_translate_element"></div>
+                 <button class="btn btn-sm btn-outline-light" id="logout-button">
+                    <i class="fas fa-sign-out-alt me-1"></i>
+                    Sign Out
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Chat Area -->
+    <main class="chat-container container">
+        <div class="chat-window" id="chat-window">
+            <div class="message-list" id="message-list">
+                <!-- Messages added dynamically -->
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <textarea class="form-control chat-input" id="chat-input" placeholder="Initializing..." rows="1" disabled></textarea>
+            <button class="btn chat-send-btn" id="send-button" aria-label="Send message" disabled>
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container text-center">
+            <p class="footer-text mb-0">© 2025 Legal Assist. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Google Translate Scripts -->
+    <script type="text/javascript">
+      function googleTranslateElementInit() {
+          try { new google.translate.TranslateElement({ pageLanguage: 'en' }, 'google_translate_element'); }
+          catch (e) { console.error("Google Translate Init Error:", e); }
+      }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <!-- Socket.IO Client Library -->
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- *** START Main Application Script *** -->
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM Elements ---
+            const chatInput = document.getElementById('chat-input');
+            const sendButton = document.getElementById('send-button');
+            const messageList = document.getElementById('message-list');
+            const chatWindow = document.getElementById('chat-window');
+            const logoutButton = document.getElementById('logout-button');
+
+            // --- State Variables ---
+            let currentChatState = 'AWAITING_START';
+            const userData = { caseType: null, location: null, budget: null, details: null };
+            // No direct chat state needed here as we redirect
+
+            // --- Constants ---
+            const caseTypeOptions = ["Divorce", "Criminal", "Property", "Labor", "Other"];
+
+            // --- Firebase Config ---
+            const firebaseConfig = {
+                apiKey: "AIzaSyAhjxwCro-f7u68H3fEJOkc5z9PsukEpNo", // <<< REPLACE
+                authDomain: "legal-assistance-5.firebaseapp.com", // <<< REPLACE
+                projectId: "legal-assistance-5",                // <<< REPLACE
+                storageBucket: "legal-assistance-5.firebasestorage.app", // <<< REPLACE
+                messagingSenderId: "617770575685",              // <<< REPLACE
+                appId: "1:617770575685:web:8ed31cfba06998d9afc02c", // <<< REPLACE
+                measurementId: "G-XSFBYLGE97" // Optional
+            };
+            // --- Initialize Firebase ---
+            let app, auth, db, currentUser = null;
+             try {
+                if (!firebase.apps.length) { app = firebase.initializeApp(firebaseConfig); }
+                else { app = firebase.app(); }
+                auth = firebase.auth();
+                db = firebase.firestore();
+                console.log("Firebase Initialized on chat.html");
+            } catch (e) { console.error("Firebase init error:", e); addSystemMessage("App init error.", "error");}
+
+            // --- WebSocket Variables ---
+            let socket = null;
+            const SERVER_URL = 'http://localhost:3000'; // Your Node.js server address
+
+            // ========================================= UI Helpers =========================================
+            function scrollToBottom() { setTimeout(() => { chatWindow.scrollTop = chatWindow.scrollHeight; }, 100); }
+            function toggleInputArea(enabled, placeholder = "Type response...") {
+                if (!chatInput || !sendButton) return;
+                chatInput.disabled = !enabled; sendButton.disabled = !enabled;
+                chatInput.placeholder = placeholder;
+                if (!enabled) chatInput.value = '';
+            }
+            function addMessageBubble(text, type, options = []) {
+                 const div = document.createElement('div');
+                 div.classList.add('message', type === 'user' ? 'user-message' : 'bot-message');
+                 const p = document.createElement('p');
+                 p.innerHTML = text.replace(/\n/g, '<br>'); div.appendChild(p);
+                 if (options.length > 0 && type === 'bot') {
+                     const optsDiv = document.createElement('div'); optsDiv.classList.add('message-options');
+                     options.forEach(optData => {
+                         const btn = document.createElement('button'); btn.classList.add('option-button');
+                         btn.textContent = typeof optData === 'string' ? optData : optData.text;
+                         // <<< CHANGE: Store lawyer UID in data-value attribute >>>
+                         if (typeof optData !== 'string' && optData.value) btn.dataset.value = optData.value;
+                         btn.addEventListener('click', handleOptionClick); optsDiv.appendChild(btn);
+                     });
+                     div.appendChild(optsDiv);
+                 }
+                 messageList.appendChild(div); scrollToBottom();
+            }
+             function addSystemMessage(text, type = 'info') {
+                 const div = document.createElement('div');
+                 div.classList.add('message', 'system-message', type);
+                 div.textContent = text; messageList.appendChild(div); scrollToBottom();
+             }
+             function handleOptionClick(event) {
+                 const btn = event.target; const text = btn.textContent; const value = btn.dataset.value; // <<< Get UID from data-value
+                 const optsDiv = btn.closest('.message-options');
+                 addMessageBubble(`Selected: ${text}`, 'user');
+                 optsDiv.querySelectorAll('.option-button').forEach(b => b.disabled = true);
+                 // <<< CHANGE: Check state and value before calling handler >>>
+                 if (currentChatState === 'SHOWING_LAWYERS' && value) {
+                     handleLawyerSelection(value); // Pass only the UID
+                 } else {
+                     handleUserInput(text); // Process as regular bot input
+                 }
+             }
+
+            // ========================================= WebSocket =========================================
+            function connectWebSocket(idToken) {
+                if (socket && socket.connected) return;
+                if (!idToken) { addSystemMessage("Auth token missing.", "error"); return; }
+                console.log("Connecting WebSocket..."); addSystemMessage("Connecting to server...");
+                if (socket) socket.disconnect();
+                // <<< ADDED: Ensure Socket.IO library is loaded >>>
+                if (typeof io === 'undefined') {
+                    console.error("Socket.IO client library (io) not found. Make sure socket.io.min.js is included before this script.");
+                    addSystemMessage("Chat library error. Cannot connect.", "error");
+                    return;
+                }
+                socket = io(SERVER_URL, { auth: { token: idToken }, reconnectionDelay: 3000 });
+                socket.on('connect', () => { console.log('✅ WS Connected:', socket.id); addSystemMessage("Connected.", "success"); if (currentChatState === 'AWAITING_START') askToStart(); });
+                socket.on('disconnect', (reason) => { console.warn('🔌 WS Disconnected:', reason); addSystemMessage(`Disconnected: ${reason}`, "error"); toggleInputArea(false, "Connection Lost..."); });
+                socket.on('connect_error', (err) => { console.error('❌ WS Error:', err.message); addSystemMessage(`Connection Error. Refresh maybe?`, "error"); toggleInputArea(false, "Connection Error"); socket = null; });
+                setupClientSocketListeners();
+            }
+            function emitSocketEvent(eventName, data) {
+                if (socket && socket.connected) { socket.emit(eventName, data); console.log(`📤 Emit ${eventName}:`, data); }
+                else { console.error("WS not connected:", eventName); addSystemMessage("Connection error.", "error"); }
+            }
+            function setupClientSocketListeners() {
+                if (!socket) return;
+                console.log("Setting up client socket listeners..."); // <<< ADDED: Log listener setup
+
+                // <<< CHANGE: More detailed logging and state check >>>
+                socket.on('lawyer_suggestions', (lawyers) => {
+                    console.log('✅ RCV lawyer_suggestions:', lawyers); // Log received data
+                    if (currentChatState === 'WAITING_FOR_SUGGESTIONS') {
+                         console.log("   ↳ Correct state. Calling displayLawyerResults.");
+                         displayLawyerResults(lawyers);
+                    } else {
+                        console.warn("   ↳ Received lawyer_suggestions in unexpected state:", currentChatState);
+                    }
+                });
+                socket.on('awaiting_lawyer_response', (data) => { console.log('✅ RCV awaiting_lawyer_response'); addMessageBubble("Notifying lawyer...", 'bot'); toggleInputArea(false, "Waiting for lawyer..."); currentChatState = 'WAITING_ACCEPTANCE'; });
+                socket.on('chat_accepted', (data) => {
+                    console.log(`✅ RCV chat_accepted by ${data.lawyerName}`);
+                    if (currentChatState === 'WAITING_ACCEPTANCE') {
+                         addSystemMessage(`Chat accepted by ${data.lawyerName}! Redirecting...`, 'success');
+                         const url = `client_chat_interface.html?room=${encodeURIComponent(data.roomName)}&partner=${encodeURIComponent(data.lawyerName)}&partnerUid=${encodeURIComponent(data.lawyerUid)}`;
+                         window.location.href = url;
+                    } else {
+                         console.warn("   ↳ Received chat_accepted in unexpected state:", currentChatState);
+                    }
+                });
+                socket.on('chat_declined', (data) => { console.log(`✅ RCV chat_declined`); if (currentChatState === 'WAITING_ACCEPTANCE') { addMessageBubble(`Lawyer declined. Try selecting another?`, 'bot'); currentChatState = 'ENDED'; toggleInputArea(false, "Request declined."); } else { console.warn("   ↳ Received chat_declined in unexpected state:", currentChatState); } });
+                socket.on('action_failed', (data) => { console.error("❌ RCV action_failed:", data.message); addSystemMessage(`Error: ${data.message}`, "error"); if (currentChatState === 'WAITING_ACCEPTANCE') askToStart(); });
+            }
+
+            // ========================================= Bot Flow =========================================
+             function askToStart() { currentChatState = 'AWAITING_START'; messageList.innerHTML = ''; addMessageBubble("Hi! Say 'Hi' or 'Start' to find legal help.", 'bot'); toggleInputArea(socket?.connected, "Say 'Hi' or 'Start'..."); }
+             function askCaseType() { addMessageBubble("Select your case category:", 'bot', caseTypeOptions); currentChatState = 'AWAITING_CASE_TYPE'; toggleInputArea(false); }
+             function askLocation() { addMessageBubble("Your City and State? (e.g., Mumbai, MH)", 'bot'); currentChatState = 'AWAITING_LOCATION'; toggleInputArea(true, "Enter City, State..."); }
+             function askBudget() { addMessageBubble("Approximate budget? ('Under 20k', 'Flexible')", 'bot'); currentChatState = 'AWAITING_BUDGET'; toggleInputArea(true, "Enter budget..."); }
+             function askDetails() { addMessageBubble("Briefly describe your issue:", 'bot'); currentChatState = 'AWAITING_DETAILS'; toggleInputArea(true, "Describe case..."); }
+             // <<< CHANGE: Add logging inside request function >>>
+             function requestLawyerSuggestions() {
+                 console.log("Calling requestLawyerSuggestions. UserData:", userData); // Log data being sent
+                 addMessageBubble(`Searching based on:\n- Case: ${userData.caseType||'Any'}\n- Loc: ${userData.location||'Any'}`, 'bot');
+                 toggleInputArea(false, "Searching...");
+                 currentChatState = 'WAITING_FOR_SUGGESTIONS';
+                 emitSocketEvent('request_lawyers', userData);
+             }
+             // <<< CHANGE: More robust display function >>>
+             function displayLawyerResults(lawyers) {
+                 console.log("Calling displayLawyerResults with:", lawyers); // Log input
+                 if (!lawyers || !Array.isArray(lawyers)) {
+                     console.error("displayLawyerResults received invalid data:", lawyers);
+                     addMessageBubble("Sorry, an error occurred while fetching lawyers.", 'bot');
+                     askToStart();
+                     return;
+                 }
+                 if (lawyers.length === 0) {
+                     addMessageBubble("No matching lawyers found for your criteria. You could try 'Other' case type or broaden your search.", 'bot');
+                     askToStart(); // Restart or offer other options
+                     return;
+                 }
+
+                 let text = "Found lawyers. Click one to request a chat:\n";
+                 lawyers.forEach((L, i) => { text += `\n${i+1}. ${L.name} (${L.specialization || 'N/A'}, ${L.location || 'N/A'})`; });
+                 // Ensure value passed is the lawyer's UID
+                 const buttons = lawyers.map(L => ({ text: `Chat with ${L.name}`, value: L.uid }));
+                 addMessageBubble(text, 'bot', buttons);
+                 currentChatState = 'SHOWING_LAWYERS';
+                 toggleInputArea(false); // Still wait for button click
+             }
+             // <<< CHANGE: Add logging >>>
+             function handleLawyerSelection(lawyerUid) {
+                 if (!lawyerUid) { console.error("handleLawyerSelection called without UID!"); return; }
+                 console.log(`Client selected lawyer UID: ${lawyerUid} in state: ${currentChatState}`);
+                 emitSocketEvent('select_lawyer', { lawyerUid, caseDetails: userData });
+                 // Server response ('awaiting_lawyer_response') will update UI/state
+             }
+
+            // ========================================= Main Input Handler =========================================
+             function handleUserInput(input = null) {
+                 const text = input !== null ? input : chatInput.value.trim();
+                 if (!text) return;
+                 if (input === null) { addMessageBubble(text, 'user'); chatInput.value = ''; chatInput.style.height = 'auto'; }
+
+                 console.log(`Handling Input: "${text}" in State: ${currentChatState}`); // <<< ADDED: Log state and input
+
+                 switch (currentChatState) {
+                     case 'AWAITING_START': (text.toLowerCase() === 'hi' || text.toLowerCase() === 'start') ? askCaseType() : addMessageBubble("Say 'Hi' or 'Start'.", 'bot'); break;
+                     case 'AWAITING_CASE_TYPE': if (caseTypeOptions.includes(text)) { userData.caseType = text; askLocation(); } else addMessageBubble("Please click an option.", 'bot'); break;
+                     case 'AWAITING_LOCATION': if(text){ userData.location = text.trim(); askBudget(); } else addMessageBubble("Enter City, State.", 'bot'); break; // Added trim
+                     case 'AWAITING_BUDGET': if(text){ userData.budget = text.trim(); askDetails(); } else addMessageBubble("Enter budget.", 'bot'); break; // Added trim
+                     // <<< CHANGE: Call requestLawyerSuggestions here >>>
+                     case 'AWAITING_DETAILS': if(text){ userData.details = text.trim(); requestLawyerSuggestions(); } else addMessageBubble("Describe case.", 'bot'); break; // Added trim
+                     case 'ENDED': default: addMessageBubble("Session ended. Say 'Start' for new search.", 'bot'); toggleInputArea(true, "Say 'Start'..."); currentChatState = 'AWAITING_START'; break;
+                 }
+             }
+
+            // ========================================= Initialization =========================================
+            if(logoutButton) logoutButton.addEventListener('click', async () => { if (socket) socket.disconnect(); try { await auth.signOut(); } catch (e) {} /* Auth listener handles redirect */ });
+            if (sendButton && chatInput) { sendButton.addEventListener('click', () => handleUserInput()); chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleUserInput(); } }); chatInput.addEventListener('input', () => { chatInput.style.height = 'auto'; chatInput.style.height = chatInput.scrollHeight + 'px'; }); }
+            else { console.error("Input/Send button missing!"); }
+
+             auth.onAuthStateChanged(async (user) => {
+                 if (user) {
+                     currentUser = user; console.log("Client Authenticated:", user.uid);
+                     try { const idToken = await user.getIdToken(true); connectWebSocket(idToken); } // Connect WS on auth
+                     catch (error) { console.error("Token Error:", error); addSystemMessage("Auth session error.", "error"); }
+                 } else { currentUser = null; console.log("Client not logged in."); if (socket) socket.disconnect(); window.location.href = 'login.html'; }
+             });
+             toggleInputArea(false, "Initializing..."); // Start disabled
+
+        }); // End DOMContentLoaded
+    </script>
+</body>
+</html>

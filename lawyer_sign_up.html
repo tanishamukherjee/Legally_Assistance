@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lawyer Sign Up - Legal Assist</title>
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* === CSS Styles === */
+        :root {
+            --primary-bg: #121212;
+            --secondary-bg: #1a1a1a;
+            --input-bg: #2a2a2a;
+            --border-color: #383838;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --accent-color: #7e57c2;
+            --accent-hover: #673ab7;
+            --error-color: #cf6679;
+            --success-color: #4caf50;
+            --white: #ffffff;
+            --google-red: #DB4437;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* --- MODIFIED: Allow body scroll on desktop too if needed --- */
+        html, body {
+             height: 100%;
+             /* Remove overflow: hidden; let content determine scroll */
+             /* overflow: hidden; */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-primary);
+            display: flex; /* Keep flex for centering */
+            justify-content: center; /* Keep flex for centering */
+            align-items: center; /* Keep flex for centering */
+            min-height: 100vh;
+            padding: 20px 10px; /* Adjust padding if needed */
+        }
+        .signup-container {
+            display: flex;
+            max-width: 1000px;
+            width: 100%;
+            background-color: var(--secondary-bg);
+            border-radius: 12px;
+            /* Remove overflow: hidden; to let child content potentially overflow */
+            /* overflow: hidden; */
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+             margin: auto; /* Center container vertically/horizontally */
+             /* Remove fixed height constraints if you want it to grow */
+             /* min-height: 75vh; */
+             /* max-height: 90vh; */
+         }
+        .left-panel {
+            flex-basis: 45%;
+            background: linear-gradient(160deg, #5e35b1 0%, #1a1a1a 75%);
+            padding: 35px 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-top-left-radius: 12px;
+            border-bottom-left-radius: 12px;
+            position: relative;
+            color: var(--white);
+        }
+        .left-panel::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: radial-gradient(circle at 25px 25px, rgba(255, 255, 255, 0.03) 1px, transparent 0), radial-gradient(circle at 75px 75px, rgba(255, 255, 255, 0.03) 1px, transparent 0); background-size: 100px 100px; pointer-events: none; opacity: 0.5; }
+        .logo { font-size: 1.3rem; font-weight: 600; display: flex; align-items: center; gap: 8px; margin-bottom: 20px; position: relative; z-index: 1; }
+        .logo-icon { font-size: 1.6rem; color: var(--white); }
+        .tagline { margin-top: auto; position: relative; z-index: 1; }
+        .tagline h1 { font-size: 2.3rem; font-weight: 700; line-height: 1.2; margin-bottom: 15px; color: var(--white); }
+        .tagline p { font-size: 0.9rem; line-height: 1.5; color: var(--text-primary); max-width: 400px; }
+
+        /* --- MODIFIED: Removed overflow/max-height from right panel --- */
+        .right-panel {
+            flex-basis: 55%;
+            padding: 35px 45px;
+            display: flex;
+            flex-direction: column;
+            /* overflow-y: auto; <-- REMOVED */
+            /* max-height: 90vh; <-- REMOVED */
+        }
+        /* --- END MODIFICATIONS --- */
+
+        .right-panel h2 { font-size: 1.6rem; font-weight: 600; margin-bottom: 8px; text-align: center; color: var(--text-primary); }
+        .right-panel .subtitle { font-size: 0.85rem; color: var(--text-secondary); text-align: center; margin-bottom: 20px; }
+        .social-signup { display: flex; gap: 15px; margin-bottom: 20px; justify-content: center; }
+        .social-btn { padding: 10px 20px; border-radius: 6px; border: 1px solid var(--border-color); background-color: var(--secondary-bg); color: var(--text-primary); font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: background-color 0.3s ease, border-color 0.3s ease, opacity 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 8px; min-width: 140px; }
+        .social-btn i { font-size: 1rem; }
+        .social-btn:hover:not(:disabled) { background-color: var(--input-bg); border-color: #555; }
+        .social-btn.google:hover:not(:disabled) { border-color: var(--google-red); color: var(--google-red); }
+        .social-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .divider { text-align: center; margin: 20px 0; color: var(--text-secondary); font-size: 0.8rem; display: flex; align-items: center; gap: 10px; }
+        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background-color: var(--border-color); }
+        #signupForm { width: 100%; }
+        .form-row { display: flex; gap: 15px; margin-bottom: 15px; }
+        .form-row .form-group { flex: 1; margin-bottom: 0; }
+        .form-group { margin-bottom: 12px; position: relative; }
+        .form-group:has(.error-message:not(:empty)) { margin-bottom: 5px; }
+        .form-group label { display: block; font-size: 0.8rem; font-weight: 500; margin-bottom: 5px; color: var(--text-secondary); }
+        .form-group input { width: 100%; padding: 10px 12px; background-color: var(--input-bg); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary); font-size: 0.9rem; transition: border-color 0.3s ease, box-shadow 0.3s ease; }
+        .form-group input::placeholder { color: var(--text-secondary); opacity: 0.7; }
+        .form-group input:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 2px rgba(126, 87, 194, 0.3); }
+        .password-wrapper { position: relative; }
+        .password-wrapper input { padding-right: 35px; }
+        .toggle-password { position: absolute; top: 50%; right: 12px; transform: translateY(-50%); color: var(--text-secondary); cursor: pointer; transition: color 0.2s ease; font-size: 0.9rem; z-index: 2; }
+        .toggle-password:hover { color: var(--text-primary); }
+        .password-reqs { list-style: none; margin-top: 8px; padding-left: 5px; font-size: 0.75rem; color: var(--text-secondary); }
+        .password-reqs li { margin-bottom: 4px; display: flex; align-items: center; gap: 5px; }
+        .password-reqs li i { font-size: 0.7rem; color: var(--error-color); transition: color 0.3s ease; }
+        .password-reqs li i.valid { color: var(--success-color); }
+        .password-reqs li i.invalid { color: var(--error-color); }
+        .form-message-area { padding: 8px 12px; border-radius: 5px; margin-bottom: 12px; font-size: 0.85rem; text-align: center; display: none; }
+        .form-message-area.success { background-color: rgba(76, 175, 80, 0.2); color: var(--success-color); border: 1px solid rgba(76, 175, 80, 0.4); }
+        .form-message-area.error { background-color: rgba(207, 102, 121, 0.15); color: var(--error-color); border: 1px solid rgba(207, 102, 121, 0.4); }
+        .error-message { color: var(--error-color); font-size: 0.75rem; margin-top: 4px; min-height: 1.1em; display: none; }
+        .input-error { border-color: var(--error-color) !important; box-shadow: 0 0 0 2px rgba(207, 102, 121, 0.3) !important; }
+        .btn-signup { width: 100%; padding: 12px 18px; background: var(--accent-color); border: none; border-radius: 6px; color: var(--white); font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: background 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease; margin-top: 10px; }
+        .btn-signup:hover:not(:disabled) { background: var(--accent-hover); box-shadow: 0 3px 12px rgba(126, 87, 194, 0.3); }
+        .btn-signup:disabled { opacity: 0.6; cursor: not-allowed; }
+        .login-link { text-align: center; margin-top: 20px; font-size: 0.85rem; color: var(--text-secondary); }
+        .login-link a { color: var(--accent-color); text-decoration: none; font-weight: 500; transition: color 0.3s ease, text-decoration 0.3s ease; }
+        .login-link a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+        /* Media Query still allows body scroll on smaller screens */
+        @media (max-width: 992px) {
+             html, body { overflow: auto; } /* Allow body scroll */
+             .signup-container { flex-direction: column; max-width: 500px; max-height: none; margin: 20px auto; }
+             .left-panel, .right-panel { overflow-y: visible; flex-basis: auto; border-radius: 12px 12px 0 0; max-height: none; }
+             .right-panel { border-radius: 0 0 12px 12px; }
+         }
+        @media (max-width: 480px) {
+            .tagline h1 { font-size: 2rem; }
+            .right-panel h2 { font-size: 1.4rem; }
+            .left-panel, .right-panel { padding: 25px 20px; }
+            .form-row { flex-direction: column; gap: 0;}
+        }
+        /* === END OF CSS === */
+    </style>
+
+</head>
+
+<script type="text/javascript" 
+  src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit">
+</script>
+<body>
+    <div class="signup-container">
+        <!-- Left Panel -->
+        <div class="left-panel">
+             <div class="logo">
+                <i class="fas fa-balance-scale logo-icon"></i>
+                <span>Legal Assist</span>
+            </div>
+             <div class="tagline">
+                <h1>Join Our Network.<br>Connect with Clients.</h1>
+                <p>Register as a legal professional.</p>
+            </div>
+        </div>
+
+        <!-- Right Panel -->
+        <div class="right-panel">
+            <h2 id="signup-heading">Lawyer Registration</h2>
+            <p class="subtitle" id="signup-subtitle">Enter your account details or use a provider below</p>
+
+            <div class="social-signup">
+                <button class="social-btn google" id="googleSignInBtn">
+                    <i class="fab fa-google"></i> Google
+                </button>
+            </div>
+
+            <div class="divider">
+                <span>Or</span>
+            </div>
+
+             <!-- General Form Message Area -->
+            <div id="form-message" class="form-message-area"></div>
+
+            <!-- Sign Up Form -->
+            <form id="signupForm" novalidate>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" placeholder="Enter username" required>
+                        <div class="error-message" id="username-error"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" placeholder="Enter email address" required>
+                         <div class="error-message" id="email-error"></div>
+                    </div>
+                </div>
+
+                 <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" name="password" placeholder="********" required>
+                        <i class="fas fa-eye-slash toggle-password"></i>
+                    </div>
+                    <ul class="password-reqs">
+                        <li><i class="fas fa-times-circle req-symbol"></i> Must have special symbols like @#$% etc.</li>
+                        <li><i class="fas fa-times-circle req-length"></i> Must be longer than 8 symbols</li>
+                    </ul>
+                     <div class="error-message" id="password-error"></div>
+                </div>
+
+                 <div class="form-group">
+                    <label for="confirmPassword">Confirm password</label>
+                     <div class="password-wrapper">
+                        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="********" required>
+                        <i class="fas fa-eye-slash toggle-password"></i>
+                    </div>
+                    <div class="error-message" id="confirmPassword-error"></div>
+                </div>
+
+                 <!-- Specific lawyer fields like Bar ID removed -->
+
+                <button type="submit" class="btn-signup">Sign Up</button>
+            </form>
+
+            <p class="login-link">
+                Already have an account? <a href="lawyer_login.html">Log in</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
+
+    <!-- JAVASCRIPT REMAINS THE SAME as the previous version -->
+    <script>
+         document.addEventListener('DOMContentLoaded', () => {
+
+             // --- Settings for Lawyer Signup ---
+            const targetCollection = "lawyers"; // Save to lawyers collection
+            const redirectTarget = 'lawyer_info.html';
+            const loginRedirectTarget = 'lawyer_home.html';
+            const userRole = 'lawyer';
+
+            console.log(`Lawyer Signup Page Initialized. Target Collection: ${targetCollection}, Role: ${userRole}`);
+
+            // --- Initialize Firebase ---
+            const firebaseConfig = {
+                apiKey: "AIzaSyAhjxwCro-f7u68H3fEJOkc5z9PsukEpNo",
+                authDomain: "legal-assistance-5.firebaseapp.com",
+                projectId: "legal-assistance-5",
+                storageBucket: "legal-assistance-5.firebasestorage.app",
+                messagingSenderId: "617770575685",
+                appId: "1:617770575685:web:8ed31cfba06998d9afc02c",
+                measurementId: "G-XSFBYLGE97"
+            };
+            let auth, db, googleProvider;
+            try {
+                if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+                else { firebase.app(); }
+                 auth = firebase.auth();
+                 db = firebase.firestore();
+                 googleProvider = new firebase.auth.GoogleAuthProvider();
+            } catch (e) {
+                console.error("Firebase initialization error:", e);
+                showFormMessage("Error initializing application.", 'error'); // Use helper
+                return;
+            }
+
+            // Get form elements
+            const signupForm = document.getElementById('signupForm');
+            const usernameInput = document.getElementById('username');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            const submitButton = signupForm?.querySelector('.btn-signup');
+            const googleSignInBtn = document.getElementById('googleSignInBtn');
+            const usernameError = document.getElementById('username-error');
+            const emailError = document.getElementById('email-error');
+            const passwordError = document.getElementById('password-error');
+            const confirmPasswordError = document.getElementById('confirmPassword-error');
+            const formMessage = document.getElementById('form-message');
+            const reqSymbol = document.querySelector('.req-symbol');
+            const reqLength = document.querySelector('.req-length');
+            const passwordToggleIcons = document.querySelectorAll('.toggle-password');
+
+            // --- Helper Functions (Defined before use) ---
+             function showErrorMessage(inputElement, errorElement, message) {
+                if (inputElement) inputElement.classList.add('input-error');
+                if (errorElement) { errorElement.textContent = message; errorElement.style.display = 'block'; }
+            }
+            function clearErrorMessage(inputElement, errorElement) {
+                 if (inputElement) inputElement.classList.remove('input-error');
+                 if (errorElement) { errorElement.textContent = ''; errorElement.style.display = 'none'; }
+            }
+            function clearAllErrors() { // Simplified
+                clearErrorMessage(usernameInput, usernameError);
+                clearErrorMessage(emailInput, emailError);
+                clearErrorMessage(passwordInput, passwordError);
+                clearErrorMessage(confirmPasswordInput, confirmPasswordError);
+                hideFormMessage();
+            }
+            function showFormMessage(message, type = 'error') {
+                 if (formMessage) { formMessage.textContent = message; formMessage.className = `form-message-area ${type}`; formMessage.style.display = 'block'; }
+            }
+            function hideFormMessage() {
+                 if (formMessage) { formMessage.textContent = ''; formMessage.style.display = 'none'; formMessage.className = 'form-message-area'; }
+            }
+            function validatePassword(password) {
+                 const errors = [];
+                 const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(password);
+                 const hasMinLength = password && password.length >= 8;
+                 updateReqIndicator(reqSymbol, hasSpecialChar);
+                 updateReqIndicator(reqLength, hasMinLength);
+                 if (!hasMinLength) errors.push('Password must be at least 8 characters long.');
+                 if (!hasSpecialChar) errors.push('Password must contain at least one special symbol.');
+                 return errors;
+             }
+            function updateReqIndicator(iconElement, isValid) {
+                 if (!iconElement) return;
+                 if (isValid) { iconElement.classList.remove('fa-times-circle', 'invalid'); iconElement.classList.add('fa-check-circle', 'valid'); }
+                 else { iconElement.classList.remove('fa-check-circle', 'valid'); iconElement.classList.add('fa-times-circle', 'invalid'); }
+             }
+             function handleSuccessfulAction(message, isSignup = false) {
+                 console.log(message);
+                 const finalRedirectTarget = isSignup ? redirectTarget : loginRedirectTarget;
+                 showFormMessage('Success! Redirecting...', 'success');
+                 if (submitButton) submitButton.disabled = true;
+                 if (googleSignInBtn) googleSignInBtn.disabled = true;
+                 setTimeout(() => { window.location.href = finalRedirectTarget; }, 1500);
+             }
+              function handleAuthError(error, method) {
+                console.error(`Firebase ${method} Error:`, error.code, error.message);
+                let friendlyMessage = `An error occurred during ${method}.`;
+                 if (error.code === 'auth/email-already-in-use') { friendlyMessage = 'This email is already registered. Try logging in.'; showErrorMessage(emailInput, emailError, friendlyMessage); }
+                 else if (error.code === 'auth/weak-password') { friendlyMessage = 'Password is too weak. Please choose a stronger one.'; showErrorMessage(passwordInput, passwordError, friendlyMessage); }
+                 else if (error.code === 'auth/invalid-email') { friendlyMessage = 'Please enter a valid email address.'; showErrorMessage(emailInput, emailError, friendlyMessage); }
+                 else if (error.code === 'auth/operation-not-allowed') { friendlyMessage = "Email/password sign-up is currently disabled."; }
+                 else if (error.code === 'auth/popup-closed-by-user') { friendlyMessage = "Google sign-in cancelled."; }
+                 else if (error.code === 'auth/cancelled-popup-request' || error.code === 'auth/popup-blocked') { friendlyMessage = "Google sign-in popup blocked. Please allow popups."; }
+                 else if (error.code === 'auth/account-exists-with-different-credential') { friendlyMessage = 'Account already exists with this email using a different method (e.g., Google). Try logging in that way.'; showErrorMessage(emailInput, emailError, friendlyMessage); }
+                 else if (error.code === 'auth/network-request-failed') { friendlyMessage = 'Network error. Please check your internet connection.'; }
+                 else if (error.message?.includes("Firestore")) { friendlyMessage = 'Error saving profile data. Please try again.'; }
+                 else { friendlyMessage = `Error (${error.code}). Please try again.`; }
+                showFormMessage(friendlyMessage, 'error');
+            }
+
+            // --- Password Toggle Visibility ---
+            if (passwordToggleIcons.length > 0) {
+                 passwordToggleIcons.forEach(icon => {
+                     icon.addEventListener('click', (event) => {
+                         try {
+                            const currentIcon = event.target;
+                            const input = currentIcon.closest('.password-wrapper')?.querySelector('input[type="password"], input[type="text"]');
+                            if (!input) {
+                                 console.error("Could not find password input for toggle icon:", currentIcon);
+                                return;
+                            }
+                            const isPassword = input.type === "password";
+                            input.type = isPassword ? "text" : "password";
+                            if (isPassword) {
+                                 currentIcon.classList.remove('fa-eye-slash');
+                                 currentIcon.classList.add('fa-eye');
+                             } else {
+                                 currentIcon.classList.remove('fa-eye');
+                                 currentIcon.classList.add('fa-eye-slash');
+                             }
+                            console.log("Password visibility toggled. New type:", input.type);
+                         } catch (e) { console.error("Error in password toggle:", e); }
+                     });
+                 });
+            } else { console.warn("No password toggle icons found."); }
+
+
+            // --- Live Validation ---
+            if (passwordInput) {
+                 passwordInput.addEventListener('input', () => {
+                     const password = passwordInput.value;
+                     validatePassword(password);
+                     if (passwordError.textContent) clearErrorMessage(passwordInput, passwordError);
+                     if (confirmPasswordInput && confirmPasswordInput.value) {
+                         if (password !== confirmPasswordInput.value) { showErrorMessage(confirmPasswordInput, confirmPasswordError, 'Passwords do not match.'); }
+                         else { clearErrorMessage(confirmPasswordInput, confirmPasswordError); }
+                     }
+                 });
+             }
+            if (confirmPasswordInput) {
+                 confirmPasswordInput.addEventListener('input', () => {
+                     const password = passwordInput ? passwordInput.value : '';
+                     const confirmPassword = confirmPasswordInput.value;
+                     if (password === confirmPassword) { clearErrorMessage(confirmPasswordInput, confirmPasswordError); }
+                     else { if (confirmPassword !== '') { showErrorMessage(confirmPasswordInput, confirmPasswordError, 'Passwords do not match.'); } }
+                 });
+             }
+
+            // --- Email/Password Form Submission Handler ---
+            if (signupForm && submitButton) {
+                signupForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    console.log("Lawyer signup form submitted.");
+
+                    clearAllErrors();
+                    let isValid = true;
+                    const originalButtonText = "Sign Up";
+
+                    // Validation
+                    const username = usernameInput ? usernameInput.value.trim() : '';
+                    const email = emailInput ? emailInput.value.trim() : '';
+                    const password = passwordInput ? passwordInput.value : '';
+                    const confirmPassword = confirmPasswordInput ? confirmPasswordInput.value : '';
+
+                    if (!username) { isValid = false; showErrorMessage(usernameInput, usernameError, 'Username is required.'); }
+                    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!email) { isValid = false; showErrorMessage(emailInput, emailError, 'Email is required.'); }
+                    else if (!emailPattern.test(email)) { isValid = false; showErrorMessage(emailInput, emailError, 'Valid email required.'); }
+                    const passwordValidationErrors = validatePassword(password);
+                    if (passwordValidationErrors.length > 0) { isValid = false; showErrorMessage(passwordInput, passwordError, passwordValidationErrors.join(' ')); }
+                    if (!confirmPassword) { isValid = false; showErrorMessage(confirmPasswordInput, confirmPasswordError, 'Confirm password.'); }
+                    else if (password !== confirmPassword && passwordValidationErrors.length === 0) { isValid = false; showErrorMessage(confirmPasswordInput, confirmPasswordError, 'Passwords do not match.'); }
+
+                    if (!isValid) {
+                        console.log('Lawyer signup validation failed.');
+                        showFormMessage('Please fix the errors below.', 'error');
+                        return;
+                    }
+
+                    console.log("Lawyer validation passed. Signing up...");
+                    submitButton.disabled = true;
+                    submitButton.textContent = 'Signing Up...';
+
+                    try {
+                        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                        const user = userCredential.user;
+                        console.log('Firebase Auth Lawyer User Created:', user.uid);
+
+                        const lawyerData = {
+                            uid: user.uid,
+                            username: username,
+                            email: user.email,
+                            role: userRole, // lawyer
+                            displayName: username,
+                            approved: false,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        };
+
+                        console.log(`DEBUG: Attempting to write to collection: '${targetCollection}', Doc ID: ${user.uid}`);
+                        await db.collection(targetCollection).doc(user.uid).set(lawyerData);
+                        console.log(`DEBUG: Initial lawyer data saved to '${targetCollection}' collection.`);
+
+                        handleSuccessfulAction("Lawyer signup successful!", true);
+
+                    } catch (error) {
+                        console.error("Error during lawyer signup:", error);
+                        handleAuthError(error, "signup");
+                         submitButton.disabled = false;
+                         submitButton.textContent = originalButtonText;
+                    }
+                });
+            } else { console.error("Signup form or submit button not found!"); }
+
+            // --- Google Sign-In Button Handler ---
+            if (googleSignInBtn) {
+                 googleSignInBtn.addEventListener('click', async () => {
+                    console.log("Google Sign-In button clicked.");
+                    clearAllErrors();
+                    showFormMessage("Redirecting to Google...", "success");
+                    googleSignInBtn.disabled = true;
+
+                     try {
+                         const result = await auth.signInWithPopup(googleProvider);
+                         const user = result.user;
+                         console.log('Google Sign-In Successful:', user.uid);
+
+                         const lawyerData = {
+                             uid: user.uid,
+                             username: user.displayName || user.email?.split('@')[0] || 'google_lawyer',
+                             email: user.email,
+                             role: userRole, // lawyer
+                             displayName: user.displayName || '',
+                             photoURL: user.photoURL || '',
+                             lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+                             approved: false,
+                             createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                         };
+
+                         console.log(`DEBUG: Attempting to write/merge to collection: '${targetCollection}', Doc ID: ${user.uid}`);
+                         await db.collection(targetCollection).doc(user.uid).set(lawyerData, { merge: true });
+                         console.log(`DEBUG: Lawyer data saved/updated in '${targetCollection}' collection.`);
+
+                         handleSuccessfulAction("Google sign-in successful!", true);
+
+                     } catch (error) {
+                         console.error("Error during Google Sign-In:", error);
+                         handleAuthError(error, "google");
+                          googleSignInBtn.disabled = false;
+                     }
+                 });
+            } else { console.error("Google Sign-In button (#googleSignInBtn) not found!"); }
+
+        }); // === END OF DOMContentLoaded ===
+    </script>
+
+</body>
+</html>

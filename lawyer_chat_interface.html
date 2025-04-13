@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lawyer Chat - LegalAssist</title> <!-- Title specific to Lawyer -->
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Re-used styles from chat.html/lawyer_home.html for consistency */
+        :root {
+            --primary-bg: #0a0a0a; --secondary-bg: #1a1a1a; --card-bg: var(--secondary-bg);
+            --accent: #7E57C2; --accent-hover: #673AB7; --text-primary: #f5f5f5;
+            --text-secondary: #a3a3a3; --border-light: rgba(255, 255, 255, 0.1);
+            --bs-border-radius-lg: 1rem; --user-message-bg: var(--accent);
+            --partner-message-bg: #2a2a2a; /* Using bot style for partner */
+            --system-message-color: var(--text-secondary);
+            --error-color: #cf6679; --success-color: #4caf50;
+        }
+        html, body { height: 100%; }
+        body { font-family: 'Inter', sans-serif; background: var(--primary-bg); color: var(--text-primary); display: flex; flex-direction: column; top: 0px !important; }
+        .navbar { background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border-light); padding: 0.8rem 1rem; flex-shrink: 0; }
+        .navbar-brand.logo { font-weight: 700; letter-spacing: -0.5px; font-size: 1.4rem; color: var(--text-primary); text-decoration: none; display: inline-flex; align-items: center; margin-right: auto; }
+        .logo-icon { color: var(--accent); margin-right: 0.6rem; font-size: 1.5rem; }
+        .navbar-actions { display: flex; align-items: center; gap: 1rem; }
+        .chat-partner-name { color: var(--text-secondary); font-size: 0.9rem; margin-right: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+        .chat-container { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; padding-top: 1.5rem; padding-bottom: 1.5rem; }
+        .chat-window { flex-grow: 1; background-color: var(--card-bg); border: 1px solid var(--border-light); border-radius: var(--bs-border-radius-lg); padding: 1.5rem; overflow-y: auto; margin-bottom: 1rem; display: flex; flex-direction: column; }
+        .message-list { display: flex; flex-direction: column; gap: 0.8rem; margin-top: auto; }
+        .message { padding: 0.75rem 1.25rem; border-radius: 1.25rem; max-width: 75%; line-height: 1.5; word-wrap: break-word; }
+        .message p:last-child { margin-bottom: 0; }
+        .message p { margin-bottom: 0.5rem; font-size: 0.95rem; }
+        .user-message { background-color: var(--user-message-bg); color: var(--white); align-self: flex-end; border-bottom-right-radius: 0.5rem; }
+        .partner-message { background-color: var(--partner-message-bg); color: var(--text-primary); align-self: flex-start; border-bottom-left-radius: 0.5rem; }
+        .system-message { align-self: center; font-style: italic; font-size: 0.85rem; color: var(--system-message-color); margin: 0.5rem 0; max-width: 90%; text-align: center; }
+        .system-message.error { color: var(--error-color); font-weight: bold; }
+        .system-message.success { color: var(--success-color); }
+        .message .sender-name { display: block; font-size: 0.75rem; opacity: 0.7; margin-bottom: 3px; color: var(--text-secondary); }
+        .user-message .sender-name { text-align: right; }
+        .partner-message .sender-name { text-align: left; }
+        .chat-input-area { display: flex; gap: 0.75rem; padding: 1rem; background-color: var(--card-bg); border: 1px solid var(--border-light); border-radius: var(--bs-border-radius-lg); }
+        .chat-input { flex-grow: 1; background-color: #2f2f2f; border: 1px solid var(--border-light); color: var(--text-primary); border-radius: 50px; padding: 0.75rem 1.25rem; resize: none; font-size: 0.95rem; line-height: 1.5; min-height: calc(1.5em + 1.5rem + 2px); transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+        .chat-input:focus { background-color: #333; border-color: var(--accent); box-shadow: 0 0 0 0.25rem rgba(126, 87, 194, 0.3); outline: none; }
+        .chat-input::placeholder { color: var(--text-secondary); opacity: 0.7; }
+        .chat-input:disabled { background-color: #252525; opacity: 0.7; cursor: not-allowed;}
+        .chat-send-btn { flex-shrink: 0; background-color: var(--accent); color: var(--white); border: none; border-radius: 50%; width: 48px; height: 48px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: background-color 0.2s ease, transform 0.1s ease; }
+        .chat-send-btn:hover:not(:disabled) { background-color: var(--accent-hover); transform: scale(1.05); }
+        .chat-send-btn:active:not(:disabled) { transform: scale(0.98); }
+        .chat-send-btn:disabled { background-color: #555; opacity: 0.6; cursor: not-allowed; }
+        footer { background-color: #000; padding: 1.5rem 0; margin-top: auto; border-top: 1px solid var(--border-light); flex-shrink: 0; }
+        .footer-text { color: var(--text-secondary); font-size: 0.85rem; }
+        .spinner-border-sm { width: 1rem; height: 1rem; border-width: .2em; }
+        @media (max-width: 576px) { .chat-partner-name { max-width: 120px; } }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <nav class="navbar sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand logo" href="lawyer_home.html"> <!-- Link back to Lawyer Dashboard -->
+                <i class="fas fa-balance-scale logo-icon"></i>
+                Legal Assist
+            </a>
+            <div class="navbar-actions">
+                <span class="chat-partner-name" id="chat-partner-name" title="Chatting with...">Chatting with...</span>
+                <button class="btn btn-sm btn-outline-secondary" id="leave-chat-button" title="Leave Chat">
+                    <i class="fas fa-times me-1 d-none d-sm-inline"></i>
+                    <span class="d-none d-sm-inline">Leave</span>
+                    <i class="fas fa-door-open d-inline d-sm-none"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Chat Area -->
+    <main class="chat-container container">
+        <div class="chat-window" id="chat-window">
+            <div class="message-list" id="message-list">
+                 <div id="loading-indicator" class="system-message">
+                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Connecting...
+                 </div>
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <textarea class="form-control chat-input" id="chat-input" placeholder="Connecting..." rows="1" disabled></textarea>
+            <button class="btn chat-send-btn" id="send-button" aria-label="Send message" disabled>
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container text-center">
+            <p class="footer-text mb-0">© 2025 Legal Assist. Chat securely.</p>
+        </div>
+    </footer>
+
+     <!-- Socket.IO Client Library -->
+     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+     <!-- Firebase SDKs -->
+     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
+     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
+     <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+     <!-- Lawyer Chat Interface Logic -->
+     <script>
+         document.addEventListener('DOMContentLoaded', () => {
+             // --- DOM Elements ---
+             const messageList = document.getElementById('message-list');
+             const chatInput = document.getElementById('chat-input');
+             const sendButton = document.getElementById('send-button');
+             const chatWindow = document.getElementById('chat-window');
+             const partnerNameSpan = document.getElementById('chat-partner-name');
+             const leaveChatButton = document.getElementById('leave-chat-button');
+             const loadingIndicator = document.getElementById('loading-indicator');
+
+             // --- State ---
+             let activeRoomName = null;
+             let partnerName = 'Client'; // Default
+             let partnerUid = null;
+             let socket = null;
+             let currentUser = null;
+
+             // --- Firebase Config ---
+             // !!!!!!!!!! IMPORTANT !!!!!!!!!!
+             // REPLACE THESE WITH YOUR ACTUAL FIREBASE PROJECT CONFIG
+             const firebaseConfig = {
+                apiKey: "AIzaSyAhjxwCro-f7u68H3fEJOkc5z9PsukEpNo", // REPLACE
+                authDomain: "legal-assistance-5.firebaseapp.com", // REPLACE
+                projectId: "legal-assistance-5",                // REPLACE
+                storageBucket: "legal-assistance-5.firebasestorage.app", // REPLACE
+                messagingSenderId: "617770575685",              // REPLACE
+                appId: "1:617770575685:web:8ed31cfba06998d9afc02c", // REPLACE
+                measurementId: "G-XSFBYLGE97" // Optional
+             };
+             // !!!!!!!!!! IMPORTANT !!!!!!!!!!
+
+             // --- Initialize Firebase ---
+             let app, auth, db;
+              try {
+                 if (!firebase.apps.length) { app = firebase.initializeApp(firebaseConfig); }
+                 else { app = firebase.app(); }
+                 auth = firebase.auth(); db = firebase.firestore();
+                 console.log("Firebase Initialized on lawyer chat interface");
+             } catch (e) { console.error("Firebase init error:", e); displaySystemMessage("App init error", "error");}
+
+             // --- Get Room and Partner Info from URL ---
+             const urlParams = new URLSearchParams(window.location.search);
+             activeRoomName = urlParams.get('room');
+             partnerName = urlParams.get('partner') || 'Client';
+             partnerUid = urlParams.get('partnerUid');
+             console.log(`Chat Interface Loaded. Room: ${activeRoomName}, Partner: ${partnerName} (${partnerUid})`);
+
+             if (!activeRoomName || !partnerUid) {
+                 console.error("❌ Missing room or partner info in URL.");
+                 messageList.innerHTML = '';
+                 displaySystemMessage("Error: Invalid chat session link.", "error");
+                 if(loadingIndicator) loadingIndicator.style.display = 'none';
+                 return;
+             }
+              if (partnerNameSpan) {
+                 partnerNameSpan.textContent = `Chat with ${partnerName}`;
+                 partnerNameSpan.title = `Chatting with ${partnerName} (UID: ${partnerUid})`;
+             }
+
+             // --- UI Helpers ---
+             function scrollToBottom() { setTimeout(() => { chatWindow.scrollTop = chatWindow.scrollHeight; }, 100); }
+             function toggleInputArea(enabled, message = "Type your message...") {
+                 if (!chatInput || !sendButton) return;
+                 chatInput.disabled = !enabled; sendButton.disabled = !enabled;
+                 chatInput.placeholder = enabled ? message : "Connecting or chat ended...";
+                 if(enabled) chatInput.focus();
+             }
+             function displaySystemMessage(text, type = 'info') {
+                 if(loadingIndicator) loadingIndicator.style.display = 'none';
+                 const div = document.createElement('div'); div.classList.add('message', 'system-message', type);
+                 div.textContent = text; messageList.appendChild(div); scrollToBottom();
+             }
+             function displayChatMessage(text, type, senderName) { // type = 'user', 'partner'
+                 if(loadingIndicator) loadingIndicator.style.display = 'none';
+                 const div = document.createElement('div'); div.classList.add('message', type === 'user' ? 'user-message' : 'partner-message');
+                 const nameSpan = document.createElement('small'); nameSpan.classList.add('sender-name');
+                 nameSpan.textContent = type === 'user' ? 'You' : senderName; div.appendChild(nameSpan);
+                 const p = document.createElement('p'); p.innerHTML = text.replace(/\n/g, '<br>'); div.appendChild(p);
+                 messageList.appendChild(div); scrollToBottom();
+             }
+
+             // --- WebSocket Logic ---
+             const SERVER_URL = 'http://localhost:3000';
+             function connectWebSocket(idToken) {
+                 if (socket && socket.connected) return;
+                 if (!idToken) { displaySystemMessage("Auth token error", "error"); return; }
+                 console.log(`Attempting WS connection to: ${SERVER_URL}...`);
+                 if (socket) socket.disconnect();
+                 if (typeof io === 'undefined') { console.error("Socket.IO client (io) not loaded!"); displaySystemMessage("Chat library failed.", "error"); return; }
+                 socket = io(SERVER_URL, { auth: { token: idToken }, reconnectionDelay: 3000 });
+
+                 socket.on('connect', () => {
+                     console.log('✅ Lawyer Chat WS Connected:', socket.id);
+                     if(loadingIndicator) loadingIndicator.style.display = 'none';
+                     toggleInputArea(true); displaySystemMessage("Connected.", 'success');
+                     emitSocketEvent('join_room', { roomName: activeRoomName });
+                     // TODO: Load chat history
+                 });
+                 socket.on('disconnect', (reason) => { console.warn('🔌 Lawyer Chat WS Disconnected:', reason); displaySystemMessage(`Disconnected: ${reason}`, "error"); toggleInputArea(false); });
+                 socket.on('connect_error', (err) => { console.error('❌ Lawyer Chat WS Error:', err.message); displaySystemMessage(`Connection Error (${err.message}).`, "error"); toggleInputArea(false); socket = null; });
+
+                 socket.on('new_message', (msgData) => { console.log(" RCV new_message", msgData); if (msgData.senderUid !== currentUser?.uid) { displayChatMessage(msgData.text, 'partner', msgData.senderName); } });
+                 socket.on('partner_disconnected', (data) => { console.log(" RCV partner_disconnected", data); if (data.roomName === activeRoomName) { displaySystemMessage(`${data.disconnectedUser || 'Client'} has left the chat.`, 'info'); toggleInputArea(false, "Chat ended."); if(leaveChatButton) { leaveChatButton.disabled = true; leaveChatButton.textContent = 'Chat Ended'; } } });
+                 socket.on('message_failed', (data) => { console.error(" RCV message_failed", data); displaySystemMessage(`Message failed: ${data.reason}`, "error"); });
+                 socket.on('join_failed', (data) => { console.error("❌ Failed to join room:", data); displaySystemMessage(`Error joining chat room: ${data.reason}`, "error"); toggleInputArea(false); });
+             } // end connectWebSocket
+
+             function emitSocketEvent(eventName, data) {
+                if (socket && socket.connected) { socket.emit(eventName, data); console.log(`📤 [Lawyer Chat Emit] ${eventName}:`, data); }
+                else { console.error("WS not connected:", eventName); displaySystemMessage("Connection error.", "error"); }
+             }
+
+             // --- Send Message Handler ---
+             function sendMessage() {
+                 const text = chatInput.value.trim();
+                 if (!text || !activeRoomName) return;
+                 displayChatMessage(text, 'user', 'You');
+                 emitSocketEvent('send_message', { roomName: activeRoomName, text: text });
+                 chatInput.value = ''; chatInput.style.height = 'auto'; chatInput.focus();
+             }
+
+             // --- Leave Chat Handler ---
+             function leaveChat() {
+                  console.log("Lawyer leaving chat room:", activeRoomName);
+                  if (socket) socket.disconnect();
+                  window.location.href = 'lawyer_home.html'; // Redirect lawyer home
+             }
+
+             // --- Initialization ---
+              auth.onAuthStateChanged(async (user) => {
+                 console.log("Lawyer Chat Interface: Auth state changed. User:", user ? user.uid : 'null');
+                 if (user) {
+                     currentUser = user;
+                     console.log("User authenticated, checking profile/token...");
+                     try {
+                         const profileCollection = 'lawyers'; // Lawyer interface checks lawyer profile
+                         console.log(`Checking profile in collection: ${profileCollection}`);
+                         const userDoc = await db.collection(profileCollection).doc(user.uid).get();
+                         if (!userDoc.exists) { console.error(`❌ User profile MISSING in ${profileCollection}`); throw new Error(`User profile not found.`); }
+                         console.log("✅ User profile found.");
+
+                         const idToken = await user.getIdToken(true);
+                         console.log("✅ Got ID token.");
+                         connectWebSocket(idToken); // Connect WebSocket
+
+                         // Attach event listeners
+                         if (sendButton && chatInput) {
+                             sendButton.addEventListener('click', sendMessage);
+                             chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+                             chatInput.addEventListener('input', () => { chatInput.style.height = 'auto'; chatInput.style.height = chatInput.scrollHeight + 'px'; });
+                         } else { console.error("Send button or chat input missing!"); }
+                         if (leaveChatButton) { leaveChatButton.addEventListener('click', leaveChat); }
+                         else { console.error("Leave chat button missing!"); }
+
+                     } catch (error) {
+                         console.error("❌ Auth/Profile/Token Error on Chat Page:", error);
+                         if(loadingIndicator) loadingIndicator.style.display = 'none';
+                         displaySystemMessage(`Error: ${error.message}. Redirecting to login...`, "error");
+                         toggleInputArea(false);
+                         setTimeout(() => { window.location.href = 'lawyer_login.html'; }, 3500); // Redirect lawyer login
+                     }
+                 } else {
+                     currentUser = null; console.log("User not logged in. Redirecting...");
+                     if (socket) socket.disconnect();
+                     if(loadingIndicator) loadingIndicator.style.display = 'none';
+                     displaySystemMessage("Authentication required. Redirecting...", "error");
+                     setTimeout(() => { window.location.href = 'lawyer_login.html'; }, 2500); // Redirect lawyer login
+                 }
+             });
+
+             // Initial UI state
+             toggleInputArea(false, "Initializing...");
+
+         }); // End DOMContentLoaded
+     </script>
+     <!-- *** END Main Application Script *** -->
+
+</body>
+</html>
